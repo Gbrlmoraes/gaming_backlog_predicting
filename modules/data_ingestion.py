@@ -24,7 +24,7 @@ def load_sheet(sheet_name: str = 'Backlog', local: bool = False) -> pd.DataFrame
 
         os.makedirs(DATA_DIR, exist_ok=True)
         df.to_csv(
-            os.path.join(DATA_DIR, 'backlog'),
+            os.path.join(DATA_DIR, 'backlog.csv'),
             encoding='utf8',
             sep=';',
             decimal=',',
@@ -33,7 +33,7 @@ def load_sheet(sheet_name: str = 'Backlog', local: bool = False) -> pd.DataFrame
 
     else:
         df = pd.read_csv(
-            os.path.join(DATA_DIR, 'backlog'),
+            os.path.join(DATA_DIR, 'backlog.csv'),
             encoding='utf8',
             sep=';',
             decimal=',',
