@@ -219,3 +219,7 @@ __marimo__/
 
 # Credentials
 credentials.json
+
+# Artifacts
+backlog.csv
+model.pkl
