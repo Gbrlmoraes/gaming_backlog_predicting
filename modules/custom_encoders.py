@@ -75,6 +75,8 @@ class BacklogEncoder(BaseEstimator, TransformerMixin):
     Combine the three encoders
     """
 
+    NUMERIC_COLS = ['Metacritic Score (AI)', 'User Score (AI)']
+
     def __init__(self, m: int = 10):
         self.m = m
         self.genre_enc = GenreEncoder()
@@ -91,11 +93,13 @@ class BacklogEncoder(BaseEstimator, TransformerMixin):
         genres = self.genre_enc.transform(X)
         franchise = self.franchise_enc.transform(X)
         developer = self.dev_enc.transform(X)
-        return pd.concat([genres, franchise, developer], axis=1)
+        numeric = X[self.NUMERIC_COLS].reset_index(drop=True)
+        return pd.concat([genres, franchise, developer, numeric], axis=1)
 
     def get_feature_names_out(self):
         return (
             self.genre_enc.feature_names_
             + self.franchise_enc.feature_names_
             + self.dev_enc.feature_names_
+            + list(self.NUMERIC_COLS)
         )
