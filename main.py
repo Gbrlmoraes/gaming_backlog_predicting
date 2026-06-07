@@ -9,10 +9,10 @@ from modules.predict import GamePrediction, predict_backlog, predictions_to_data
 from modules.train import DEFAULT_MODEL_PATH, FEATURES, train
 
 SHEET_NAME = 'Backlog'
-M_ESTIMATE_PARAM = 10
+M_ESTIMATE_PARAM = 5
 MODEL_PATH = DEFAULT_MODEL_PATH
 TOP_SHAP_COLUMNS = 3  # columns shown in the summary DataFrame
-TOP_GAMES_PRINT = 15  # rows printed in the console summary
+TOP_GAMES_PRINT = 10  # rows printed in the console summary
 
 
 def run(
@@ -79,7 +79,7 @@ def run(
         print(f'  Base score: {top.shap_base_value:.3f}  (average of training ratings)')
         print(f'  Final score: {top.final_score:.3f}  (base × {top.status_multiplier})')
         print()
-        for contrib in top.top_contributions[:6]:
+        for contrib in top.top_contributions:
             sign = '+' if contrib.shap_value >= 0 else ''
             print(f'    {sign}{contrib.shap_value:+.3f}  {contrib.human_label}')
 
