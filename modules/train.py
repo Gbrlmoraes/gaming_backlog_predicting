@@ -9,7 +9,9 @@ from modules.data_ingestion import load_sheet, prepare_data
 from modules.evaluation import evaluate
 from modules.pipeline import build_pipeline
 
-FEATURES: list[str] = ['Gênero', 'Franquia', 'Desenvolvedora']
+FEATURES: list[str] = [
+    'Gênero', 'Franquia', 'Desenvolvedora', 'Metacritic Score (AI)', 'User Score (AI)',
+]
 DEFAULT_MODEL_PATH = Path('data/model.pkl')
 
 warnings.filterwarnings('ignore')

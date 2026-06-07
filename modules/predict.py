@@ -5,10 +5,12 @@ import pandas as pd
 import shap
 from sklearn.pipeline import Pipeline
 
-FEATURES: list[str] = ['Gênero', 'Franquia', 'Desenvolvedora']
+FEATURES: list[str] = [
+    'Gênero', 'Franquia', 'Desenvolvedora', 'Metacritic Score (AI)', 'User Score (AI)',
+]
 
 STATUS_MULTIPLIERS: dict[str, float] = {
-    '2. Próximos': 1.05,
+    '2. Próximos': 1.00,
     '4. Backlog': 1.00,
     '5. Rejogar': 0.95,
     '6. Dar Outra Chance': 0.87,
@@ -82,6 +84,10 @@ def _build_shap_explainer(
     """
     Fit the encoder on training data and construct a SHAP LinearExplainer.
 
+    The explainer is built on the fully pre-processed data (enc → imputer → scaler)
+    so that SHAP values are consistent with what the Ridge model actually saw.
+    The raw encoder output (pre-imputer) is returned separately for human-readable labels.
+
     Returns the explainer, the fitted encoder step, and the encoded feature names.
     """
     encoder = pipe.named_steps['enc']
@@ -90,8 +96,12 @@ def _build_shap_explainer(
     X_enc_train: pd.DataFrame = encoder.transform(X_train)
     feature_names: list[str] = list(X_enc_train.columns)
 
+    # Apply imputer and scaler so the explainer sees the same space as the Ridge
+    X_processed_train = pipe.named_steps['imputer'].transform(X_enc_train)
+    X_processed_train = pipe.named_steps['scaler'].transform(X_processed_train)
+
     ridge = pipe.named_steps['model']
-    explainer = shap.LinearExplainer(ridge, X_enc_train)
+    explainer = shap.LinearExplainer(ridge, X_processed_train)
 
     return explainer, encoder, feature_names
 
@@ -99,17 +109,23 @@ def _build_shap_explainer(
 def _compute_shap_values(
     explainer: shap.Explainer,
     encoder,
+    pipe: Pipeline,
     feature_names: list[str],
     X_backlog: pd.DataFrame,
 ) -> shap.Explanation:
     """Encode the backlog features and compute SHAP values."""
     X_enc_backlog: pd.DataFrame = encoder.transform(X_backlog)
-    X_enc_backlog.columns = feature_names
-    raw = explainer(X_enc_backlog)
+    # Store raw encoded values for human-readable display before scaling
+    raw_encoded_values = X_enc_backlog.values.copy()
+
+    X_processed = pipe.named_steps['imputer'].transform(X_enc_backlog)
+    X_processed = pipe.named_steps['scaler'].transform(X_processed)
+
+    raw = explainer(X_processed)
     return shap.Explanation(
         values=raw.values,
         base_values=raw.base_values,
-        data=X_enc_backlog.values,
+        data=raw_encoded_values,  # pre-scale values for readable SHAP display
         feature_names=feature_names,
     )
 
@@ -151,7 +167,7 @@ def predict_backlog(
 
     # SHAP values for every backlog game
     shap_values = _compute_shap_values(
-        explainer, encoder, feature_names, backlog[FEATURES]
+        explainer, encoder, pipe, feature_names, backlog[FEATURES]
     )
 
     results: list[GamePrediction] = []
@@ -176,6 +192,9 @@ def predict_backlog(
                     'Desenvolvedora', row['Desenvolvedora'], enc_val,
                     global_means['Desenvolvedora_mest'],
                 )
+            elif feat in ('Metacritic Score (AI)', 'User Score (AI)'):
+                label = feat
+                human = f'{label} ({enc_val:.1f})' if not np.isnan(enc_val) else f'{label} (N/A)'
             else:
                 # Genre multi-hot: show presence/absence
                 human = feat if enc_val == 1 else f'{feat} (absent)'
