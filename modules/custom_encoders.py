@@ -93,7 +93,7 @@ class BacklogEncoder(BaseEstimator, TransformerMixin):
         genres = self.genre_enc.transform(X)
         franchise = self.franchise_enc.transform(X)
         developer = self.dev_enc.transform(X)
-        numeric = X[self.NUMERIC_COLS].reset_index(drop=True)
+        numeric = X[self.NUMERIC_COLS]
         return pd.concat([genres, franchise, developer, numeric], axis=1)
 
     def get_feature_names_out(self):
