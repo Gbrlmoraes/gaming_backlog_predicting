@@ -6,7 +6,11 @@ import shap
 from sklearn.pipeline import Pipeline
 
 FEATURES: list[str] = [
-    'Gênero', 'Franquia', 'Desenvolvedora', 'Metacritic Score (AI)', 'User Score (AI)',
+    'Gênero',
+    'Franquia',
+    'Desenvolvedora',
+    'Metacritic Score (AI)',
+    'User Score (AI)',
 ]
 
 STATUS_MULTIPLIERS: dict[str, float] = {
@@ -184,17 +188,25 @@ def predict_backlog(
         ):
             if feat == 'Franquia_js':
                 human = _format_category_label(
-                    'Franquia', row['Franquia'], enc_val,
+                    'Franquia',
+                    row['Franquia'],
+                    enc_val,
                     global_means['Franquia_js'],
                 )
             elif feat == 'Desenvolvedora_mest':
                 human = _format_category_label(
-                    'Desenvolvedora', row['Desenvolvedora'], enc_val,
+                    'Desenvolvedora',
+                    row['Desenvolvedora'],
+                    enc_val,
                     global_means['Desenvolvedora_mest'],
                 )
             elif feat in ('Metacritic Score (AI)', 'User Score (AI)'):
                 label = feat
-                human = f'{label} ({enc_val:.1f})' if not np.isnan(enc_val) else f'{label} (N/A)'
+                human = (
+                    f'{label} ({enc_val:.1f})'
+                    if not np.isnan(enc_val)
+                    else f'{label} (N/A)'
+                )
             else:
                 # Genre multi-hot: show presence/absence
                 human = feat if enc_val == 1 else f'{feat} (absent)'

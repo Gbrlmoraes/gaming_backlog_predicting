@@ -10,7 +10,11 @@ from modules.evaluation import evaluate
 from modules.pipeline import build_pipeline
 
 FEATURES: list[str] = [
-    'Gênero', 'Franquia', 'Desenvolvedora', 'Metacritic Score (AI)', 'User Score (AI)',
+    'Gênero',
+    'Franquia',
+    'Desenvolvedora',
+    'Metacritic Score (AI)',
+    'User Score (AI)',
 ]
 DEFAULT_MODEL_PATH = Path('data/model.pkl')
 

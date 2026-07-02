@@ -58,12 +58,12 @@ def prepare_data(df: pd.DataFrame):
             df[col] = pd.to_numeric(df[col], errors='coerce')
 
     finished = (
-    df[
-        df['Status'].isin([
-            '1. Jogando',
-            '3. Finalizados',
-        ])
-    ]
+        df[
+            df['Status'].isin([
+                '1. Jogando',
+                '3. Finalizados',
+            ])
+        ]
         .dropna(subset=['Nota'])
         .reset_index(drop=True)
     )
