@@ -20,6 +20,7 @@ def run(
     m: int = M_ESTIMATE_PARAM,
     model_path: Path = MODEL_PATH,
     top_shap: int = TOP_SHAP_COLUMNS,
+    local: bool = False,
     verbose: bool = True,
 ) -> list[GamePrediction]:
     """
@@ -38,9 +39,9 @@ def run(
         the full list of ShapContribution objects for downstream use.
     """
     if verbose:
-        print('Loading data from Google Sheets…')
+        print('Loading data from CSV…' if local else 'Loading data from Google Sheets…')
 
-    df = load_sheet(sheet_name)
+    df = load_sheet(sheet_name, local=local)
     finished, backlog = prepare_data(df)
 
     X_train = finished[FEATURES]
@@ -54,6 +55,7 @@ def run(
         sheet_name=sheet_name,
         m=m,
         model_path=model_path,
+        local=local,
         verbose=verbose,
     )
 
@@ -87,7 +89,7 @@ def run(
 
 
 if __name__ == '__main__':
-    all_predictions = run()
+    all_predictions = run(local=True)
 
     # The full list is available for downstream processing.
     # Example: access every prediction's SHAP breakdown programmatically.

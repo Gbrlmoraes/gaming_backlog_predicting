@@ -25,6 +25,7 @@ def train(
     sheet_name: str = 'Backlog',
     m: int = 10,
     model_path: Path = DEFAULT_MODEL_PATH,
+    local: bool = False,
     verbose: bool = True,
 ) -> tuple[Pipeline, pd.DataFrame, pd.Series, dict]:
     """
@@ -33,7 +34,7 @@ def train(
     Returns the fitted pipeline, training features, training labels,
     and LOO-CV evaluation metrics.
     """
-    df = load_sheet(sheet_name)
+    df = load_sheet(sheet_name, local=local)
     finished, backlog = prepare_data(df)
 
     X_train: pd.DataFrame = finished[FEATURES]
